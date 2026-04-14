@@ -5,6 +5,7 @@ import re
 
 app = FastAPI()
 
+
 # Configure API Key
 genai.configure(api_key="AIzaSyD1J76PmPgt-xIsTF4KATEJ_zEwH5tZMNU")
 
