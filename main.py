@@ -1,14 +1,20 @@
 from fastapi import FastAPI, UploadFile, File
 import google.generativeai as genai
+from dotenv import load_dotenv
 import json
 import re
 import os
 import base64
 
+load_dotenv()  # loads .env locally; on Render the env var is set directly
+
 app = FastAPI()
 
 # ✅ Use ENV variable (Render)
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+_api_key = os.getenv("GOOGLE_API_KEY")
+if not _api_key:
+    raise RuntimeError("GOOGLE_API_KEY environment variable is not set")
+genai.configure(api_key=_api_key)
 
 model = genai.GenerativeModel("gemini-2.5-flash")
 
