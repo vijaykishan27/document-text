@@ -8,8 +8,7 @@ import base64
 app = FastAPI()
 
 # ✅ Use ENV variable (Render)
-# genai.configure(api_key=os.getenv("AIzaSyD1J76PmPgt-xIsTF4KATEJ_zEwH5tZMNU"))
-os.getenv("AIzaSyD1J76PmPgt-xIsTF4KATEJ_zEwH5tZMNU")
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 model = genai.GenerativeModel("gemini-2.5-flash")
 
