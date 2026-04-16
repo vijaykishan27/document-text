@@ -1,9 +1,9 @@
 from fastapi import FastAPI, UploadFile, File
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import json
 import re
 import os
-import base64
 import io
 from dotenv import load_dotenv
 
@@ -19,9 +19,7 @@ load_dotenv()
 app = FastAPI()
 
 # Configure Gemini
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-
-model = genai.GenerativeModel("gemini-2.5-flash-lite")
+client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 
 # -----------------------
@@ -92,10 +90,10 @@ async def extract_bill(file: UploadFile = File(...)):
         if "wordprocessingml.document" in file_type:
             text_content = read_docx(file_bytes)
 
-            response = model.generate_content([
-                prompt,
-                text_content
-            ])
+            response = client.models.generate_content(
+                model="gemini-2.5-flash-lite",
+                contents=[prompt, text_content]
+            )
 
         # -----------------------
         # Excel Handling
@@ -103,24 +101,22 @@ async def extract_bill(file: UploadFile = File(...)):
         elif "spreadsheet" in file_type or "excel" in file_type:
             text_content = read_excel(file_bytes)
 
-            response = model.generate_content([
-                prompt,
-                text_content
-            ])
+            response = client.models.generate_content(
+                model="gemini-2.5-flash-lite",
+                contents=[prompt, text_content]
+            )
 
         # -----------------------
         # PDF & Images
         # -----------------------
         else:
-            file_base64 = base64.b64encode(file_bytes).decode("utf-8")
-
-            response = model.generate_content([
-                prompt,
-                {
-                    "mime_type": file_type,
-                    "data": file_base64
-                }
-            ])
+            response = client.models.generate_content(
+                model="gemini-2.5-flash-lite",
+                contents=[
+                    prompt,
+                    types.Part.from_bytes(data=file_bytes, mime_type=file_type)
+                ]
+            )
 
         # -----------------------
         # Clean response
